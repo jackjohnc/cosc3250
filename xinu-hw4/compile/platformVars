@@ -1,0 +1,67 @@
+#
+# Platform-specific Makefile definitions for the Raspberry Pi port of Embedded
+# Xinu.
+#
+
+TEMPLATE_ARCH := aarch64
+
+# Architecture root and prefix (ignored if user overrides COMPILER_ROOT from the
+# toplevel Makefile).
+ARCH_ROOT   :=
+ARCH_PREFIX := arm-none-eabi-
+
+# Flaf for producing GDB debug informations.
+BUGFLAG     := -gstabs+
+
+# libgcc is needed for a software implementation of integer division, which is
+# not included in the ARM instruction set
+LDLIBS		+= -lgcc
+
+# Objcopy flags, used for including data files in the resulting binary
+OCFLAGS		:= -I binary -O elf32-littlearm -B arm
+
+# Add a way to test for any ARM platform in C code.
+DEFS        += -D_XINU_ARCH_ARM_
+
+# Default build target. For ARM we just translate the kernel into a raw binary.
+$(BOOTIMAGE): xinu.elf
+	$(OBJCOPY) -O binary $^ $@
+
+
+PLATFORM_NAME := Raspberry Pi 3
+
+# Extra compiler and assembler flags to specifically target the cortex-a53 CPU
+# used on the BCM2837 (used by the Raspberry Pi).
+CFLAGS   += -mcpu=cortex-a53
+ASFLAGS  += -mcpu=cortex-a53
+
+# Extra compiler flag that disables gcc from generating unaligned memory accesses
+# This is used as an alternative to doing this in the assembly code in start.S
+CFLAGS	 += -mno-unaligned-access
+
+# Add a define so we can test for Raspberry Pi in C code if absolutely needed
+DEFS     += -D_XINU_PLATFORM_ARM_RPI_3_
+
+# Embedded Xinu components to build into the kernel image
+APPCOMPS :=		#apps	\
+			#mailbox \
+			#shell   \
+			#network \
+			#test	 \
+
+# Embedded Xinu device drivers to build into the kernel image
+DEVICES  := #uart-pl011      \
+#            tty	            \
+#            usb             \
+#            lan7800	    \
+#	    raw		    \
+#	    tcp		    \
+#	    udp		    \
+#           smsc9512        \
+#      	    ethloop         \
+#            raw             \
+#            loopback        \
+#            telnet          \
+#            framebuffer_rpi \
+#            usbkbd          \
+

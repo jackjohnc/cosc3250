@@ -9,9 +9,9 @@
 #include <xinu.h>
 
 /* Function prototypes */
-static int sysinit(void);       /* intializes system structures        */
-static void welcome(void);      /* Print inital O/S data        */
-extern process main(void);      /* main is the first process created    */
+static int sysinit(void);       /* intializes system structures          */
+static void welcome(void);      /* Print inital O/S data                 */
+extern process main(void);      /* main is the first process created     */
 extern void testcases(void);
 
 /* Declarations of major kernel variables */
@@ -23,10 +23,10 @@ int numproc;                    /* Number of live user processes         */
 int currpid;                    /* Id of currently running process       */
 
 /* Params set by startup.S */
-void *memheap;                  /* Bottom of heap (top of O/S stack)   */
-ulong cpuid;                    /* Processor id                        */
+void *memheap;                  /* Bottom of heap (top of O/S stack)     */
+ulong cpuid;                    /* Processor id                          */
 
-struct platform platform;       /* Platform specific configuration     */
+struct platform platform;       /* Platform specific configuration       */
 
 /*
  * Intializes the system and becomes the null process.
@@ -64,14 +64,16 @@ void nulluser(void)
 
 }
 
+
 static void welcome(void)
 {
     kprintf(VERSION);
     kprintf("\r\n\r\n");
 
     /* Output detected platform. */
-    kprintf("Detected platform as: %s, %s\r\n\r\n",
-            platform.family, platform.name);
+    kprintf("Detected platform as: [%s] %s, %s (rev %d)\r\n\r\n",
+            platform.manufacturer, platform.family,
+            platform.type, platform.revision);
 
     /* Output Xinu memory layout */
     kprintf("%10d bytes physical memory.\r\n",
@@ -89,14 +91,29 @@ static void welcome(void)
     kprintf("           [0x%08X to 0x%08X]\r\n",
             (ulong)_start, (ulong)&_end - 1);
 
-    kprintf("%10d bytes stack space.\r\n", (ulong)memheap - (ulong)&_end);
+    kprintf("%10d bytes kernel stack space.\r\n",
+            (ulong)memheap - (ulong)&_end);
     kprintf("           [0x%08X to 0x%08X]\r\n",
             (ulong)&_end, (ulong)memheap - 1);
 
-    kprintf("%10d bytes heap space.\r\n",
-            (ulong)platform.maxaddr - (ulong)memheap);
-    kprintf("           [0x%08X to 0x%08X]\r\n\r\n",
-            (ulong)memheap, (ulong)platform.maxaddr - 1);
+    if (PERIPHERALS_BASE < (ulong)platform.maxaddr)
+    {
+        kprintf("%10d bytes heap space.\r\n",
+                (ulong)PERIPHERALS_BASE - (ulong)memheap);
+        kprintf("           [0x%08X to 0x%08X]\r\n",
+                (ulong)memheap, (ulong)PERIPHERALS_BASE - 1);
+        kprintf("%10d bytes memory-mapped peripheral space.\r\n",
+                (ulong)platform.maxaddr - (ulong)PERIPHERALS_BASE);
+        kprintf("           [0x%08X to 0x%08X]\r\n\r\n",
+                (ulong)PERIPHERALS_BASE, (ulong)platform.maxaddr - 1);
+    }
+    else
+    {
+        kprintf("%10d bytes heap space.\r\n",
+                (ulong)platform.maxaddr - (ulong)memheap);
+        kprintf("           [0x%08X to 0x%08X]\r\n\r\n",
+                (ulong)memheap, (ulong)platform.maxaddr - 1);
+    }
     kprintf("\r\n");
 }
 
@@ -123,8 +140,8 @@ static int sysinit(void)
     ppcb = &proctab[NULLPROC];
     ppcb->state = PRCURR;
     strncpy(ppcb->name, "prnull", 7);
-    ppcb->stkbase = (void *)&_end;
-    ppcb->stkptr = NULL;
+    ppcb->stkbase       = (void *)&_end;
+    ppcb->stkptr        = NULL;
     ppcb->stklen = (ulong)memheap - (ulong)&_end;
     currpid = NULLPROC;
 

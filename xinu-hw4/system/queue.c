@@ -1,8 +1,6 @@
 /**
  * @file queue.c
  * @provides enqueue, remove, dequeue, getfirst, newqueue
- *
- * $Id: queue.c 189 2007-07-13 21:43:45Z brylow $
  */
 /* Embedded XINU, Copyright (C) 2007.  All rights reserved. */
 

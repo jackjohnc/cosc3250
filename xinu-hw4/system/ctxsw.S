@@ -29,12 +29,10 @@ ctxsw:
 
 // TODO: Save process state, including at least the 
 //	callee-save ("non-volatile") registers.
-
 // TODO: Restore process state, including at least the
 //	callee-save ("non-volatile") registers.
 //	These call and restore segments must match the register data
 //	layout you choose in create().
-
 // TODO: Jump to next function.
 //	Note: there are two important values at play here --
 //	the address of the process's function that we want to end up in

@@ -2,6 +2,7 @@
 #include <kernel.h>
 #include <conf.h>
 #include <arm.h>
+#include <arm-atag.h>
 #include <proc.h>
 #include <queue.h>
 #include <compiler.h>

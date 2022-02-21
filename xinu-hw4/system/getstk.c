@@ -1,13 +1,10 @@
 /**
  * @file getstk.c
  * @provides getstk
- *
- * $Id: getstk.c 190 2007-07-13 22:24:20Z agember $
  */
 /* Embedded XINU, Copyright (C) 2007.  All rights reserved. */
 
 #include <xinu.h>
-#include <platform.h>
 
 extern void *end;
 
@@ -29,6 +26,8 @@ void *getstk(ulong nbytes)
         return ((void *)SYSERR);
     }
 
+    if (platform.maxaddr > (void *)PERIPHERALS_BASE)
+        platform.maxaddr = (void *)PERIPHERALS_BASE;
     nbytes = (nbytes + 15) & ~0x0F;
 
     if ((long)platform.maxaddr - nbytes < (int)&_end)

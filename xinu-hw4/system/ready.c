@@ -2,7 +2,7 @@
  * @file ready.c
  * @provides ready
  *
- * COSC 3250 / COEN 4820 Assignment 4
+ * COSC 3250 Assignment 4
  */
 /* Embedded XINU, Copyright (C) 2008.  All rights reserved. */
 

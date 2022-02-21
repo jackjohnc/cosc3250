@@ -45,9 +45,9 @@ syscall create(void *funcaddr, ulong ssize, char *name, ulong nargs, ...)
     ppcb = &proctab[pid];
 	
 	// TODO: Setup PCB entry for new process.
-	ppcb->state = PRCURR;
-	strncpy(ppcb->name, name, strnlen(name));
-	ppcb->stkbase = (ulong *)((ulong)saddr)*ssize;
+	ppcb->state = PRSUSP;
+	strncpy(ppcb->name, name, PNMLEN);
+	ppcb->stkbase = (ulong *)((ulong)saddr) - ssize;
 	ppcb->stklen = NULL;
     /* Initialize stack with accounting block. */
     *saddr = STACKMAGIC;
@@ -68,7 +68,11 @@ syscall create(void *funcaddr, ulong ssize, char *name, ulong nargs, ...)
     }
 
 	// TODO: Initialize process context.
-	//
+	for (i = 0; i <16; i++) 
+		*--saddr = 0;
+	saddr[CTX_SP] = (int) userret;
+	saddr[CTX_LR] = (int) funcaddr;
+	ppcb->stkptr = saddr;
 	// TODO:  Place arguments into activation record.
 	//        See K&R 7.3 for example using va_start, va_arg and
 	//        va_end macros for variable argument functions.

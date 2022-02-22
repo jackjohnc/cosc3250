@@ -48,7 +48,7 @@ syscall create(void *funcaddr, ulong ssize, char *name, ulong nargs, ...)
 	ppcb->state = PRSUSP;
 	strncpy(ppcb->name, name, PNMLEN);
 	ppcb->stkbase = (ulong *)((ulong)saddr) - ssize;
-	ppcb->stklen = NULL;
+	ppcb->stklen = ssize;
     /* Initialize stack with accounting block. */
     *saddr = STACKMAGIC;
     *--saddr = pid;
@@ -70,8 +70,8 @@ syscall create(void *funcaddr, ulong ssize, char *name, ulong nargs, ...)
 	// TODO: Initialize process context.
 	for (i = 0; i < 16; i++) 
 		*--saddr = 0;
-	saddr[CTX_SP] = (int) userret;
-	saddr[CTX_LR] = (int) funcaddr;
+	saddr[CTX_LR] = (int) userret;
+	saddr[CTX_PC] = (int) funcaddr;
 	ppcb->stkptr = saddr;
 	// TODO:  Place arguments into activation record.
 	//        See K&R 7.3 for example using va_start, va_arg and
@@ -81,7 +81,7 @@ syscall create(void *funcaddr, ulong ssize, char *name, ulong nargs, ...)
 		if (i < 4)
 			saddr[i] = va_arg(ap, ulong);
 		else 
-			saddr[CTX_PC + (i - 3)];
+			saddr[CTX_PC + (i - 3)] = va_arg(ap, ulong);
 	}
 	va_end(ap);
 

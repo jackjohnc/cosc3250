@@ -27,6 +27,12 @@
  */
 ctxsw:
 
+// store r0-r11 separately in their own spots in oldStack
+// store LR twice, once in stack at the r14 space and again in the PC spot
+// store sp in r0 of oldStack and load sp in r1 w/o offset from newStack
+
+// load r0-r11, LR, and PC from newStack
+
 // TODO: Save process state, including at least the 
 //	callee-save ("non-volatile") registers.
 // TODO: Restore process state, including at least the

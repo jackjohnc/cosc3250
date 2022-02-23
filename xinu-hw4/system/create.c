@@ -1,4 +1,14 @@
 /**
+ * COSC 3250 -Project #4
+ * function to create new processes in embedded O/S
+ * @author [Teague McGinn]
+ * @author [Jack Condit]
+ * Instructor [Dr. Dennis Brylow]
+ * TA-BOT:MAILTO [teague.mcginn@marquette.edu]
+ * TA-BOT:MAILTO [john.condit@marquette.edu]
+ */
+
+/**
  * @file create.c
  * @provides create, newpid, userret
  *
@@ -45,10 +55,11 @@ syscall create(void *funcaddr, ulong ssize, char *name, ulong nargs, ...)
     ppcb = &proctab[pid];
 	
 	// TODO: Setup PCB entry for new process.
-	ppcb->state = PRSUSP;
-	strncpy(ppcb->name, name, PNMLEN);
-	ppcb->stkbase = (ulong *)((ulong)saddr) - ssize;
-	ppcb->stklen = ssize;
+	ppcb->state = PRSUSP; //starts process in suspended
+	strncpy(ppcb->name, name, PNMLEN); //saves name of process
+	ppcb->stkbase = (ulong *)((ulong)saddr) - ssize; //initialzes stack base
+	ppcb->stklen = ssize; //initializes the length of the stack
+    
     /* Initialize stack with accounting block. */
     *saddr = STACKMAGIC;
     *--saddr = pid;
@@ -68,20 +79,21 @@ syscall create(void *funcaddr, ulong ssize, char *name, ulong nargs, ...)
     }
 
 	// TODO: Initialize process context.
-	for (i = 0; i < 16; i++) 
+	for (i = 0; i < 16; i++) //opens space on stack for r0-r15 
 		*--saddr = 0;
-	saddr[CTX_LR] = (int) userret;
-	saddr[CTX_PC] = (int) funcaddr;
-	ppcb->stkptr = saddr;
+	saddr[CTX_LR] = (int) userret; //saves userret function to link register
+	saddr[CTX_PC] = (int) funcaddr; //saves funcaddr to program counter
+	ppcb->stkptr = saddr; //points stack pointer to the bottom of the stack
+
 	// TODO:  Place arguments into activation record.
 	//        See K&R 7.3 for example using va_start, va_arg and
 	//        va_end macros for variable argument functions.
 	va_start(ap, nargs);
 	for (i = 0; i < nargs; i++) {
 		if (i < 4)
-			saddr[i] = va_arg(ap, ulong);
+			saddr[i] = va_arg(ap, ulong); //first 4 args go to r0-r3
 		else 
-			saddr[CTX_PC + (i - 3)] = va_arg(ap, ulong);
+			saddr[CTX_PC + (i - 3)] = va_arg(ap, ulong); //additional args go to activation record
 	}
 	va_end(ap);
 

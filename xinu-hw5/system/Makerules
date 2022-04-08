@@ -1,0 +1,8 @@
+# This Makefile contains rules to build files in the system/ directory.
+
+# Name of this component (the directory this file is stored in)
+COMP = system
+
+# Add the files to the compile source path
+DIR = ${TOPDIR}/${COMP}
+COMP_SRC += ${DIR}/start.S $(wildcard ${DIR}/*.S) ${DIR}/initialize.c $(wildcard ${DIR}/*.c)
